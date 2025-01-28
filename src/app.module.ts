@@ -9,13 +9,14 @@ import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { ChallengesModule } from './challenges/challenges.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { DatabaseModule } from './config/database.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true
     }),
-    UsersModule, ProblemsModule, UserProgressModule, PostsModule, CommentsModule, ChallengesModule, NotificationsModule
+    UsersModule, ProblemsModule, UserProgressModule, PostsModule, CommentsModule, ChallengesModule, NotificationsModule, DatabaseModule
   ],
   controllers: [AppController],
   providers: [AppService],

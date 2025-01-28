@@ -20,6 +20,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         entities: [__dirname + '/../**/*.entity{.ts,.js}'], // Carrega as entidades automaticamente
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true), // Apenas para desenvolvimento
         logging: configService.get<boolean>('DB_LOGGING', false),
+        ssl: {
+          rejectUnauthorized: false, 
+        },
       }),
     }),
   ],
