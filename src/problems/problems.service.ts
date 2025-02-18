@@ -1,26 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Problem } from './entities/problem.entity';
 import { CreateProblemDto } from './dto/create-problem.dto';
-import { UpdateProblemDto } from './dto/update-problem.dto';
 
 @Injectable()
 export class ProblemsService {
-  create(createProblemDto: CreateProblemDto) {
-    return 'This action adds a new problem';
+  constructor(
+    @InjectRepository(Problem)
+    private readonly problemRepository: Repository<Problem>,
+  ) {}
+
+  async create(createProblemDto: CreateProblemDto): Promise<Problem> {
+    const problem = this.problemRepository.create(createProblemDto);
+    return this.problemRepository.save(problem);
   }
 
-  findAll() {
-    return `This action returns all problems`;
+  async findAll(): Promise<Problem[]> {
+    return this.problemRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} problem`;
+  async findOne(id: string): Promise<Problem> {
+    const problem = await this.problemRepository.findOne({ where: { id } });
+    if (!problem) {
+      throw new NotFoundException(`Problema com id ${id} não encontrado.`);
+    }
+    return problem;
   }
 
-  update(id: number, updateProblemDto: UpdateProblemDto) {
-    return `This action updates a #${id} problem`;
+  async update(id: string, updateProblemDto: Partial<CreateProblemDto>): Promise<Problem> {
+    await this.problemRepository.update(id, updateProblemDto);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} problem`;
+  async remove(id: string): Promise<void> {
+    const result = await this.problemRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Problema com id ${id} não encontrado.`);
+    }
   }
 }
