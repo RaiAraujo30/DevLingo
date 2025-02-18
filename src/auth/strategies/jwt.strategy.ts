@@ -20,15 +20,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: any) {
-    // Buscar o usuário no banco para garantir que tenha a role correta
-    const user = await this.userRepository.findOne({
-      where: { id: payload.sub },
-    });
-
-    if (!user) {
-      return null;
-    }
-
-    return { userId: user.id, username: user.username, role: user.role }; 
+    console.log('JwtStrategy payload:', payload);
+    return {
+      userId: payload.sub,
+      username: payload.username,
+      role: payload.role || 'user',
+    };
   }
+  
 }

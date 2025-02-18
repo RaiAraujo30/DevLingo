@@ -1,37 +1,38 @@
+import { Entity, Column, CreateDateColumn, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
+@Entity('posts')
 export class Post {
+  // Identificador único
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    //uuid
-    @PrimaryGeneratedColumn('uuid')
-    id: string
+  // Relação com o usuário que criou o post
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
-    //user_id
-    @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'user_id' })
-    user: User;
+  // Conteúdo do post
+  @Column({ type: 'text' })
+  content: string;
 
-    //content
-    @Column({ type: 'text' })
-    content: string;
+  // Tipo do post: 'text', 'image' ou 'video'
+  @Column({ type: 'enum', enum: ['text', 'image', 'video'] })
+  type: 'text' | 'image' | 'video';
 
-    //type -> enum
-    @Column({ type: 'enum', enum: ['text', 'image', 'video'] })
-    type: 'text' | 'image' | 'video';
+  // Contador de likes
+  @Column({ type: 'int', default: 0 })
+  likes_count: number;
 
-    //likes_count
-    @Column({ type: 'int', default: 0 })
-    likes_count: number;
+  // Contador de comentários
+  @Column({ type: 'int', default: 0 })
+  comments_count: number;
 
-    //comments_count
-    @Column({ type: 'int', default: 0 })
-    comments_count: number;
+  // Data de criação
+  @CreateDateColumn()
+  created_at: Date;
 
-    //created_at
-    @CreateDateColumn()
-    created_at: Date;
-    //updated_at
-    @UpdateDateColumn()
-    updated_at: Date;
+  // Data de atualização
+  @UpdateDateColumn()
+  updated_at: Date;
 }
