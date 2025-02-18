@@ -14,7 +14,7 @@ import { JwtAuthGuard } from './jwtAuthGuard';
     TypeOrmModule.forFeature([User, RevokedToken]),
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'secret',
+      secret: process.env.JWT_SECRET || 'segredo123',
       signOptions: { expiresIn: '1h' },
     }),
   ],

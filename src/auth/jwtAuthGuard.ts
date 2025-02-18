@@ -23,7 +23,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (!authHeader) throw new UnauthorizedException('Token não fornecido');
 
     const token = authHeader.split(' ')[1];
-    console.log('Token recebido no JwtAuthGuard:', request.headers.authorization);
 
     // 🔥 Se AuthService não estiver injetado, lançar erro
     if (!this.authService) {
