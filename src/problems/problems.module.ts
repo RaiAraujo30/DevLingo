@@ -8,6 +8,6 @@ import { Problem } from './entities/problem.entity';
   imports: [TypeOrmModule.forFeature([Problem])],
   controllers: [ProblemsController],
   providers: [ProblemsService],
-  exports: [TypeOrmModule], 
+  exports: [TypeOrmModule, ProblemsService], 
 })
 export class ProblemsModule {}

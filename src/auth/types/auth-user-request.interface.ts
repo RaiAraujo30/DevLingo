@@ -5,6 +5,6 @@ export interface AuthUserRequest extends Request {
   user: {
     userId: string;
     username: string;
-    role: UserRole;
+    role: string;
   };
 }

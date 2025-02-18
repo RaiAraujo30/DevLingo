@@ -1,38 +1,32 @@
-import { Post } from 'src/posts/entities/post.entity';
-import { User } from 'src/users/entities/user.entity';
-import {
-  Column,
-  CreateDateColumn,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, Column, CreateDateColumn, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Post } from "src/posts/entities/post.entity";
+import { User } from "src/users/entities/user.entity";
 
+@Entity('comments')
 export class Comment {
-  //uuid
+  // Identificador único
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  //user_id
-  @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
+  // Relação com o usuário que comentou
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  //post_id
-  @ManyToOne(() => Post, (post) => post.id, { onDelete: 'CASCADE' })
+  // Relação com o post que recebeu o comentário
+  @ManyToOne(() => Post, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id' })
   post: Post;
 
-  //content
+  // Conteúdo do comentário
   @Column({ type: 'text' })
   content: string;
 
-  //created_at
+  // Data de criação
   @CreateDateColumn()
   created_at: Date;
 
-  //updated_at
+  // Data de atualização
   @UpdateDateColumn()
   updated_at: Date;
 }

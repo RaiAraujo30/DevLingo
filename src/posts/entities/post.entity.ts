@@ -1,5 +1,7 @@
-import { Entity, Column, CreateDateColumn, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Entity, Column, CreateDateColumn, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn, OneToMany } from "typeorm";
 import { User } from "src/users/entities/user.entity";
+import { Problem } from "src/problems/entities/problem.entity";
+import { Comment } from "src/comments/entities/comment.entity";
 
 @Entity('posts')
 export class Post {
@@ -10,7 +12,11 @@ export class Post {
   // Relação com o usuário que criou o post
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: User | null;
+
+  @ManyToOne(() => Problem, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'problem_id' })
+  problem?: Problem | null;
 
   // Conteúdo do post
   @Column({ type: 'text' })
@@ -27,6 +33,9 @@ export class Post {
   // Contador de comentários
   @Column({ type: 'int', default: 0 })
   comments_count: number;
+
+  @OneToMany(() => Comment, comment => comment.post, { cascade: true })
+  comments: Comment[];
 
   // Data de criação
   @CreateDateColumn()

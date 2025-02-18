@@ -19,7 +19,7 @@ export class AuthController {
   @Get('current-user')
   getCurrentUser(@Req() request: AuthUserRequest) {
     return {
-      userId: request.user.userId,
+      id: request.user.userId,
       username: request.user.username,
       role: request.user.role, 
     };

@@ -30,6 +30,12 @@ export class PostsController {
     return this.postsService.findOne(id);
   }
 
+    // Buscar posts de um usuário específico (pública)
+    @Get('user/:userId')
+    async findByUser(@Param('userId') userId: string) {
+      return this.postsService.findByUser(userId);
+    }
+
   // Atualizar um post (requer autenticação)
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
