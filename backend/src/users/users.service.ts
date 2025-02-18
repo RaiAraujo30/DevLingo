@@ -63,4 +63,58 @@ export class UsersService {
 
     await this.userRepository.remove(userToDelete);
   }
+
+  async followUser(currentUserId: string, targetUserId: string): Promise<void> {
+    if (currentUserId === targetUserId) {
+      throw new Error("Você não pode seguir a si mesmo.");
+    }
+    
+    const currentUser = await this.userRepository.findOne({ 
+      where: { id: currentUserId }, 
+      relations: ['following'] 
+    });
+    const targetUser = await this.userRepository.findOne({ where: { id: targetUserId } });
+    
+    if (!currentUser || !targetUser) {
+      throw new NotFoundException("Usuário não encontrado.");
+    }
+    
+    // Se já estiver seguindo, pode lançar um erro ou simplesmente retornar
+    if (currentUser.following.some(user => user.id === targetUserId)) {
+      return;
+    }
+    
+    currentUser.following.push(targetUser);
+    await this.userRepository.save(currentUser);
+  }
+
+  async unfollowUser(currentUserId: string, targetUserId: string): Promise<void> {
+    const currentUser = await this.userRepository.findOne({ 
+      where: { id: currentUserId }, 
+      relations: ['following'] 
+    });
+    
+    if (!currentUser) {
+      throw new NotFoundException("Usuário não encontrado.");
+    }
+    
+    currentUser.following = currentUser.following.filter(user => user.id !== targetUserId);
+    await this.userRepository.save(currentUser);
+  }
+
+  async getFollowers(userId: string): Promise<User[]> {
+    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['followers'] });
+    if (!user) {
+      throw new NotFoundException("Usuário não encontrado.");
+    }
+    return user.followers;
+  }
+
+  async getFollowing(userId: string): Promise<User[]> {
+    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['following'] });
+    if (!user) {
+      throw new NotFoundException("Usuário não encontrado.");
+    }
+    return user.following;
+  }
 }
