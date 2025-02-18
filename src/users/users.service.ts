@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt'; // Para hash de senhas
+import { UserRole } from './types/User.role';
 
 @Injectable()
 export class UsersService {
@@ -14,16 +15,25 @@ export class UsersService {
 
   // Criação de um novo usuário
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { username, email, password } = createUserDto;
+    const { username, email, password, role } = createUserDto;
+
+    // Verifica se o email já está em uso
+    const existingUser = await this.userRepository.findOne({ where: { email } });
+    if (existingUser) {
+      throw new Error('Email already in use');
+    }
 
     // Hash da senha antes de salvar
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    const validRole = Object.values(UserRole).includes(role) ? role : UserRole.USER;
 
     // Criação da entidade
     const user = this.userRepository.create({
       username,
       email,
       password: hashedPassword,
+      role: validRole,
     });
 
     // Salva no banco de dados
