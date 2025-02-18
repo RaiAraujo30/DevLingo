@@ -1,28 +1,25 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { AuthService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../users/entities/user.entity';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthController } from './auth.controller';
+import { User } from '../users/entities/user.entity';
+import { RevokedToken } from './entities/revoked-token.entity';
+import { JwtAuthGuard } from './jwtAuthGuard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, RevokedToken]),
     PassportModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || 'secret',
-        signOptions: { expiresIn: '1h' },
-      }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'secret',
+      signOptions: { expiresIn: '1h' },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy], // 🔥 Adicionando JwtStrategy aqui
-  exports: [AuthService, JwtStrategy, JwtModule],
+  providers: [AuthService, JwtStrategy, JwtAuthGuard], // 🔥 Agora incluímos JwtAuthGuard
+  exports: [AuthService, JwtStrategy, JwtAuthGuard], // 🔥 Exportamos para ser acessado em outros módulos
 })
 export class AuthModule {}

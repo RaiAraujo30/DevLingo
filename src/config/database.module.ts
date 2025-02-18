@@ -8,6 +8,7 @@ import { Challenge } from 'src/challenges/entities/challenge.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
 import { Post } from 'src/posts/entities/post.entity';
+import { RevokedToken } from 'src/auth/entities/revoked-token.entity';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { Post } from 'src/posts/entities/post.entity';
         username: configService.get<string>('DB_USERNAME', 'postgres'),
         password: configService.get<string>('DB_PASSWORD', 'postgres'),
         database: configService.get<string>('DB_DATABASE', 'devlingo'),
-        entities: [User, UserProgress, Problem, Challenge, Comment, Notification, Post], // Carrega as entidades automaticamente
+        entities: [User, UserProgress, Problem, Challenge, Comment, Notification, Post, RevokedToken], // Carrega as entidades automaticamente
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true), // Apenas para desenvolvimento
         logging: configService.get<boolean>('DB_LOGGING', false),
         ssl: {

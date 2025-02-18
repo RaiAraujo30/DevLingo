@@ -10,29 +10,24 @@ import { CommentsModule } from './comments/comments.module';
 import { ChallengesModule } from './challenges/challenges.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { DatabaseModule } from './config/database.module';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './auth/jwtAuthGuard';
 import { AuthModule } from './auth/auth.module';
-import { RolesGuard } from './auth/roles.guard';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true
     }),
-    UsersModule, ProblemsModule, UserProgressModule, PostsModule, CommentsModule, ChallengesModule, NotificationsModule, DatabaseModule, AuthModule
+    AuthModule, // 🔥 Certifique-se de que `AuthModule` vem antes dos Guards globais
+    UsersModule, 
+    ProblemsModule, 
+    UserProgressModule, 
+    PostsModule, 
+    CommentsModule, 
+    ChallengesModule, 
+    NotificationsModule, 
+    DatabaseModule
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard, // Depois, verifica se o usuário tem a role necessária
-    },
-  ],
-  
+  providers: [AppService], // 🔥 Removemos `APP_GUARD`
 })
 export class AppModule {}

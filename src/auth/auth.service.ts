@@ -5,6 +5,7 @@ import { User } from '../users/entities/user.entity';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { RevokedToken } from './entities/revoked-token.entity';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,9 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+
+    @InjectRepository(RevokedToken)
+    private revokedTokenRepository: Repository<RevokedToken>,
   ) {}
 
   // Login do usuário
@@ -36,5 +40,15 @@ export class AuthService {
     const access_token = this.jwtService.sign(payload);
 
     return { access_token };
+  }
+
+  // Logout do usuário
+  async logout(token: string): Promise<void> {
+    await this.revokedTokenRepository.save({ token });
+  }
+
+  async isTokenRevoked(token: string): Promise<boolean> {
+    const revoked = await this.revokedTokenRepository.findOne({ where: { token } });
+    return !!revoked;
   }
 }

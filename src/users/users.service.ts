@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -49,7 +49,18 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  async remove(id: number): Promise<void> {
-    await this.userRepository.delete(id);
+  async deleteUser(requestingUserId: string, targetUserId: string, requestingUserRole: string): Promise<void> {
+    const userToDelete = await this.userRepository.findOne({ where: { id: targetUserId } });
+
+    if (!userToDelete) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    // Somente o próprio usuário ou um admin pode excluir
+    if (requestingUserId !== targetUserId && requestingUserRole !== 'admin') {
+      throw new ForbiddenException('Você não tem permissão para excluir este usuário');
+    }
+
+    await this.userRepository.remove(userToDelete);
   }
 }
