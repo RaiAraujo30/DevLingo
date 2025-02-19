@@ -117,4 +117,13 @@ export class UsersService {
     }
     return user.following;
   }
+
+  async updateProfilePicture(userId: string, filename: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+    user.profile_picture = filename; // Você pode salvar a URL completa se preferir
+    return this.userRepository.save(user);
+  }
 }

@@ -4,10 +4,13 @@ import { LoginUserDto } from '../users/dto/login-user.dto';
 import { JwtAuthGuard } from './jwtAuthGuard';
 import { AuthUserRequest } from './types/auth-user-request.interface';
 import { Public } from '../decorators/public.decorator';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService
+  ) {}
 
   @Public()
   @Post('login')
@@ -15,15 +18,8 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('current-user')
-  getCurrentUser(@Req() request: AuthUserRequest) {
-    return {
-      id: request.user.userId,
-      username: request.user.username,
-      role: request.user.role, 
-    };
-  }
+  
+
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')

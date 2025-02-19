@@ -16,7 +16,7 @@ import { JwtAuthGuard } from './jwtAuthGuard';
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'segredo123',
       signOptions: { expiresIn: '1h' },
-    }),
+    })
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtAuthGuard], // 🔥 Agora incluímos JwtAuthGuard

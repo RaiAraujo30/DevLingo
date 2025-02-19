@@ -1,4 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpException, HttpStatus, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  HttpException,
+  HttpStatus,
+  Req,
+  Put,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -8,6 +23,11 @@ import { UserRole } from './types/User.role';
 import { User } from './entities/user.entity';
 import { UserRequest } from './types/User.request';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import { diskStorage } from 'multer';
+import { Express, Multer } from 'multer';
+import { AuthUserRequest } from 'src/auth/types/auth-user-request.interface';
 
 @Controller('users')
 export class UsersController {
@@ -22,8 +42,69 @@ export class UsersController {
       if (error.message === 'Email already in use') {
         throw new HttpException('Email already in use', HttpStatus.BAD_REQUEST);
       }
-      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('current-user')
+  async getCurrentUser(@Req() request: AuthUserRequest) {
+    // userId vem do token decodificado
+    const userId = request.user.id;
+
+    // Agora buscamos o usuário no banco de dados
+    const user = await this.usersService.findById(userId);
+
+    // Retorne o objeto completo (ou apenas as propriedades que você quiser)
+    return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('me/profile-picture')
+  @UseInterceptors(
+    FileInterceptor('profile_picture', {
+      storage: diskStorage({
+        destination: './uploads/profile-pictures',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const fileExtName = extname(file.originalname);
+          const fileName = `${uniqueSuffix}${fileExtName}`;
+          cb(null, fileName);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+          return cb(
+            new HttpException(
+              'Apenas arquivos de imagem são permitidos!',
+              HttpStatus.BAD_REQUEST,
+            ),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async updateProfilePicture(
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request & { user: any },
+  ) {
+    console.log('Arquivo recebido no backend:', file);
+    if (!file) {
+      throw new HttpException('Nenhum arquivo enviado', HttpStatus.BAD_REQUEST);
+    }
+    const userId = req.user.id;
+    const updatedUser = await this.usersService.updateProfilePicture(
+      userId,
+      file.filename,
+    );
+    console.log('Usuário atualizado:', updatedUser);
+    return updatedUser;
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -43,7 +124,11 @@ export class UsersController {
   async deleteUser(@Req() request: UserRequest, @Param('id') id: string) {
     const requestingUser = request.user; // Pega os dados do usuário autenticado
 
-    await this.usersService.deleteUser(requestingUser.userId, id, requestingUser.role);
+    await this.usersService.deleteUser(
+      requestingUser.userId,
+      id,
+      requestingUser.role,
+    );
     return { message: 'Usuário excluído com sucesso' };
   }
 
@@ -51,7 +136,7 @@ export class UsersController {
   @Post(':targetUserId/follow')
   async followUser(
     @Param('targetUserId') targetUserId: string,
-    @Req() request: Request & { user: User }
+    @Req() request: Request & { user: User },
   ) {
     const currentUserId = request.user.id;
     await this.usersService.followUser(currentUserId, targetUserId);
@@ -63,7 +148,7 @@ export class UsersController {
   @Delete(':targetUserId/follow')
   async unfollowUser(
     @Param('targetUserId') targetUserId: string,
-    @Req() request: Request & { user: User }
+    @Req() request: Request & { user: User },
   ) {
     const currentUserId = request.user.id;
     await this.usersService.unfollowUser(currentUserId, targetUserId);

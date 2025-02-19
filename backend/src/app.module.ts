@@ -11,11 +11,17 @@ import { ChallengesModule } from './challenges/challenges.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { DatabaseModule } from './config/database.module';
 import { AuthModule } from './auth/auth.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads', // URL base para acessar os arquivos, opcional
     }),
     AuthModule, // 🔥 Certifique-se de que `AuthModule` vem antes dos Guards globais
     UsersModule, 

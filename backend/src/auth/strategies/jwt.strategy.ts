@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { JwtPayload } from '../types/JWT-paylaod';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -19,7 +20,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: any) {
+  
+
+  async validate(payload: JwtPayload) {
     // Retorna o usuário com "id", não "userId"
     return { id: payload.sub, username: payload.username, role: payload.role };
   }
