@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
 
-const Login = () => {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -11,84 +11,63 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    console.log("Botão de login clicado!"); // 🔹 Log de depuração
 
     try {
-        const data = await login(email, password);
-        if (data.access_token) {
-          navigate("/dashboard"); // Redireciona se houver access_token
-        }
-      } catch (err) {
-        setError("Email ou senha inválidos.");
-        console.error("Erro no login:", err);
+      const data = await login(email, password);
+      if (data.access_token) {
+        navigate("/dashboard");
       }
+    } catch (err) {
+      setError("Email ou senha inválidos.");
+      console.error("Erro no login:", err);
+    }
   };
 
   return (
-    <div style={styles.container}>
-      <h2>Login</h2>
-      {error && <p style={styles.error}>{error}</p>}
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
-        />
-        <input
-          type="password"
-          placeholder="Senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-        />
-        <button type="submit" style={styles.button}>Entrar</button>
-      </form>
-      <p>
-        Não tem uma conta? <a href="/register" style={styles.link}>Cadastre-se</a>
-      </p>
+    <div className="flex items-center justify-center min-h-screen ">
+      <div className="w-full max-w-md bg-white rounded shadow-lg p-8">
+        <h2 className="text-2xl font-bold text-ggom-2 mb-6 text-center">
+          Login
+        </h2>
+
+        {error && (
+          <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+        )}
+
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            className="border border-gray-300 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ggom-3"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Senha"
+            className="border border-gray-300 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ggom-3"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button
+            type="submit"
+            className="bg-ggom-2 hover:bg-ggom-3 text-white font-semibold py-2 px-4 rounded transition-colors"
+          >
+            Entrar
+          </button>
+        </form>
+
+        <p className="mt-4 text-center">
+          Não tem uma conta?{" "}
+          <a
+            href="/register"
+            className="text-ggom-4 hover:underline font-semibold"
+          >
+            Cadastre-se
+          </a>
+        </p>
+      </div>
     </div>
   );
-};
-
-import { CSSProperties } from "react";
-
-const styles: { [key: string]: CSSProperties } = {
-  container: {
-    textAlign: "center",
-    padding: "20px",
-  },
-  error: {
-    color: "red",
-    fontSize: "14px",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-    maxWidth: "300px",
-    margin: "0 auto",
-  },
-  input: {
-    padding: "10px",
-    fontSize: "16px",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-  },
-  button: {
-    padding: "10px",
-    fontSize: "16px",
-    backgroundColor: "#282c34",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-  link: {
-    color: "#007bff",
-    textDecoration: "none",
-  },
-};
-
-export default Login;
+}
