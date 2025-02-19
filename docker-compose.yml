@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  # SERVIÇO DO BACKEND
+  backend:
+    build: ./backend
+    container_name: devlingo-backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+
+  # SERVIÇO DO FRONTEND
+  frontend:
+    build: ./frontend
+    container_name: devlingo-frontend
+    ports:
+      - "5173:80"  # Se quiser acessar pelo localhost:5173
+    depends_on:
+      - backend
+
+  # SERVIÇO DE BANCO DE DADOS (PostgreSQL)
+  db:
+    image: postgres:latest
+    container_name: devlingo-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: devlingo
+    ports:
+      - "5432:5432"
