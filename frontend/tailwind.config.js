@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      gridTemplateColumns: {
+        '35': 'repeat(35, minmax(0, 1fr))',
+      },
       // Suas cores personalizadas
       colors: {
         "ggom-1": "rgba(4, 40, 63, 1)",
